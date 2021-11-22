@@ -1,9 +1,11 @@
 import path from "path";
 import { promises as fs } from "fs";
 
+import { useEffect, useRef, useState } from "react";
 import { Button, Center, Heading, List, ListItem, useBoolean } from "@chakra-ui/react";
 import type { GetServerSideProps, InferGetServerSidePropsType, NextPage } from "next";
-import { useEffect, useRef, useState } from "react";
+import Head from "next/head";
+import { ArrowForwardIcon } from "@chakra-ui/icons";
 
 import { ANSWER_TYPE, QUESTION_TYPE } from "../types";
 
@@ -15,7 +17,7 @@ const Home: NextPage = ({
   const interval = useRef<any>();
   const [questionsColorScheme, setQuestionsColorScheme] = useState<{ [id: string]: string }>();
   const [roundEnded, setRoundEnded] = useBoolean();
-  const [currentQuestion] = useState<QUESTION_TYPE>(questions[0]);
+  const [currentQuestion, setCurrentQuestion] = useState<QUESTION_TYPE>(questions[0]);
 
   useEffect(() => {
     setQuestionsColorScheme(
@@ -42,6 +44,11 @@ const Home: NextPage = ({
     }
   }, [timer]);
 
+  const goToNextQuestion = () => {
+    setCurrentQuestion(questions[1]);
+    setRoundEnded.off();
+  };
+
   const startGame = () => {
     setGameStarted.on();
     interval.current = setInterval(() => {
@@ -65,33 +72,48 @@ const Home: NextPage = ({
   };
 
   return (
-    <Center flexDirection="column" h="100vh">
-      {!gameStarted ? (
-        <Button onClick={startGame}>Start Game</Button>
-      ) : (
-        <>
-          <Heading mb={10}>{timer}</Heading>
-          <Heading maxW="50%" mb={5} textAlign="center">
-            {currentQuestion.question}
-          </Heading>
-          <List spacing={3}>
-            {currentQuestion.answers.map((answer: ANSWER_TYPE) => (
-              <ListItem key={answer.id}>
-                <Button
-                  _focus={{ boxShadow: "none" }}
-                  colorScheme={!questionsColorScheme ? "gray" : questionsColorScheme[answer.id]}
-                  cursor={roundEnded ? "default" : "pointer"}
-                  w="100%"
-                  onClick={() => checkAnswer(answer.id)}
-                >
-                  {answer.answer}
-                </Button>
-              </ListItem>
-            ))}
-          </List>
-        </>
-      )}
-    </Center>
+    <>
+      <Head>
+        <title>Trivia Nerd 🤓</title>
+      </Head>
+      <Center flexDirection="column" h="100vh">
+        {!gameStarted ? (
+          <Button onClick={startGame}>Start Game</Button>
+        ) : (
+          <>
+            <Heading mb={10}>{timer}</Heading>
+            <Heading maxW="50%" mb={5} textAlign="center">
+              {currentQuestion.question}
+            </Heading>
+            <List spacing={3}>
+              {currentQuestion.answers.map((answer: ANSWER_TYPE) => (
+                <ListItem key={answer.id}>
+                  <Button
+                    _focus={{ boxShadow: "none" }}
+                    colorScheme={!questionsColorScheme ? "gray" : questionsColorScheme[answer.id]}
+                    cursor={roundEnded ? "default" : "pointer"}
+                    w="100%"
+                    onClick={() => checkAnswer(answer.id)}
+                  >
+                    {answer.answer}
+                  </Button>
+                </ListItem>
+              ))}
+            </List>
+            {roundEnded && (
+              <Button
+                colorScheme="blue"
+                mt={8}
+                rightIcon={<ArrowForwardIcon />}
+                onClick={goToNextQuestion}
+              >
+                Next Question
+              </Button>
+            )}
+          </>
+        )}
+      </Center>
+    </>
   );
 };
 
