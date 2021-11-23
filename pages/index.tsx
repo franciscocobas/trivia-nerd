@@ -1,6 +1,3 @@
-import path from "path";
-import { promises as fs } from "fs";
-
 import { useEffect, useRef, useState } from "react";
 import { Button, Center, Heading, List, ListItem, useBoolean } from "@chakra-ui/react";
 import type { GetServerSideProps, InferGetServerSidePropsType, NextPage } from "next";
@@ -14,10 +11,11 @@ const Home: NextPage = ({
 }: InferGetServerSidePropsType<typeof getServerSideProps>) => {
   const [gameStarted, setGameStarted] = useBoolean();
   const [timer, setTimer] = useState<number>(10);
-  const interval = useRef<any>();
   const [questionsColorScheme, setQuestionsColorScheme] = useState<{ [id: string]: string }>();
   const [roundEnded, setRoundEnded] = useBoolean();
   const [currentQuestion, setCurrentQuestion] = useState<QUESTION_TYPE>(questions[0]);
+  const [currentIndex, setCurrentIndex] = useState<number>(0);
+  const interval = useRef<any>();
 
   useEffect(() => {
     setQuestionsColorScheme(
@@ -45,7 +43,15 @@ const Home: NextPage = ({
   }, [timer]);
 
   const goToNextQuestion = () => {
-    setCurrentQuestion(questions[1]);
+    if (currentIndex + 1 >= questions.length) {
+      return;
+    }
+    setCurrentIndex((prev) => prev + 1);
+    setCurrentQuestion(questions[currentIndex + 1]);
+    setTimer(10);
+    interval.current = setInterval(() => {
+      setTimer((oTimer) => oTimer - 1);
+    }, 1000);
     setRoundEnded.off();
   };
 
@@ -76,12 +82,16 @@ const Home: NextPage = ({
       <Head>
         <title>Trivia Nerd 🤓</title>
       </Head>
-      <Center flexDirection="column" h="100vh">
+      <Center flexDirection="column">
         {!gameStarted ? (
-          <Button onClick={startGame}>Start Game</Button>
+          <Button mt={80} onClick={startGame}>
+            Start Game
+          </Button>
         ) : (
           <>
-            <Heading mb={10}>{timer}</Heading>
+            <Heading mb={10} mt={40}>
+              {timer}
+            </Heading>
             <Heading maxW="50%" mb={5} textAlign="center">
               {currentQuestion.question}
             </Heading>
@@ -120,12 +130,9 @@ const Home: NextPage = ({
 export default Home;
 
 export const getServerSideProps: GetServerSideProps = async () => {
-  const questionsDirectory = path.join(process.cwd(), "questions");
-  const questionsFileContent = await fs.readFile(
-    path.join(questionsDirectory, "questions.json"),
-    "utf8",
-  );
-  const questions: QUESTION_TYPE[] = JSON.parse(questionsFileContent);
+  if (!process.env.AWS_QUESTIONS_URL) return { props: {} };
+  const response = await fetch(process.env.AWS_QUESTIONS_URL);
+  const questions: QUESTION_TYPE[] = await response.json();
 
   return {
     props: {
