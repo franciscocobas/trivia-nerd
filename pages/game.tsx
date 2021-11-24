@@ -1,5 +1,5 @@
 import { ArrowForwardIcon } from "@chakra-ui/icons";
-import { Button, Heading, List, ListItem, useBoolean } from "@chakra-ui/react";
+import { Button, Center, Container, Heading, List, ListItem, useBoolean } from "@chakra-ui/react";
 import { GetServerSideProps, InferGetServerSidePropsType } from "next";
 import { useEffect, useRef, useState } from "react";
 
@@ -69,14 +69,14 @@ function GamePage({
   };
 
   return (
-    <>
-      <Heading mb={10} mt={40}>
+    <Container maxW="container.xl">
+      <Heading mb={10} mt={40} textAlign="center">
         {timer}
       </Heading>
-      <Heading maxW="50%" mb={5} textAlign="center">
+      <Heading mb={5} textAlign="center">
         {currentQuestion.question}
       </Heading>
-      <List spacing={3}>
+      <List maxW={["100%", "25%"]} mx="auto" spacing={3}>
         {currentQuestion.answers.map((answer: ANSWER_TYPE) => (
           <ListItem key={answer.id}>
             <Button
@@ -92,16 +92,18 @@ function GamePage({
         ))}
       </List>
       {roundEnded && (
-        <Button
-          colorScheme="blue"
-          mt={8}
-          rightIcon={<ArrowForwardIcon />}
-          onClick={goToNextQuestion}
-        >
-          Next Question
-        </Button>
+        <Center>
+          <Button
+            colorScheme="blue"
+            mt={8}
+            rightIcon={<ArrowForwardIcon />}
+            onClick={goToNextQuestion}
+          >
+            Next Question
+          </Button>
+        </Center>
       )}
-    </>
+    </Container>
   );
 }
 
