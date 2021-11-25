@@ -10,7 +10,9 @@ function Header(props: Props): JSX.Element {
   return (
     <Box as="header">
       {!session ? (
-        <Button onClick={() => signIn(undefined, { callbackUrl: "http://localhost:3000/game" })}>
+        <Button
+          onClick={() => signIn(undefined, { callbackUrl: `${process.env.NEXT_AUTH_URL}/game` })}
+        >
           Login
         </Button>
       ) : (
