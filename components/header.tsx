@@ -12,7 +12,7 @@ function Header(props: Props): JSX.Element {
       {!session ? (
         <Button
           m="4"
-          onClick={() => signIn(undefined, { callbackUrl: `${process.env.NEXTAUTH_URL}/game` })}
+          onClick={() => signIn(undefined, { callbackUrl: `${process.env.NEXT_HOST_URL}/game` })}
         >
           Login
         </Button>

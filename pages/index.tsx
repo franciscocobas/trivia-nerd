@@ -17,7 +17,7 @@ const Home: NextPage = () => {
         <Button
           leftIcon={<FaGithub />}
           mt={10}
-          onClick={() => signIn(undefined, { callbackUrl: `${process.env.NEXTAUTH_URL}/game` })}
+          onClick={() => signIn(undefined, { callbackUrl: `${process.env.NEXT_HOST_URL}/game` })}
         >
           Log In with GitHub
         </Button>
