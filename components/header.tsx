@@ -8,15 +8,18 @@ function Header(props: Props): JSX.Element {
   const loading = status === "loading";
 
   return (
-    <Box as="header">
+    <Box as="header" display="flex" justifyContent="flex-end">
       {!session ? (
         <Button
-          onClick={() => signIn(undefined, { callbackUrl: `${process.env.NEXT_AUTH_URL}/game` })}
+          m="4"
+          onClick={() => signIn(undefined, { callbackUrl: `${process.env.NEXTAUTH_URL}/game` })}
         >
           Login
         </Button>
       ) : (
-        <Button onClick={() => signOut()}>Logout</Button>
+        <Button m="4" onClick={() => signOut()}>
+          Logout
+        </Button>
       )}
     </Box>
   );

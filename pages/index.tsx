@@ -14,7 +14,11 @@ const Home: NextPage = () => {
         <Box alignSelf="flex-end" as="header" minH={14} />
         <Heading mt={40}>Welcome to Programming Trivia Game</Heading>
         <Text>Before play the game you need to Log In</Text>
-        <Button leftIcon={<FaGithub />} mt={10} onClick={() => signIn()}>
+        <Button
+          leftIcon={<FaGithub />}
+          mt={10}
+          onClick={() => signIn(undefined, { callbackUrl: `${process.env.NEXTAUTH_URL}/game` })}
+        >
           Log In with GitHub
         </Button>
       </Center>
