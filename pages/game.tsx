@@ -26,6 +26,9 @@ function GamePage({
         {},
       ),
     );
+    interval.current = setInterval(() => {
+      setTimer((oTimer) => oTimer - 1);
+    }, 1000);
 
     return () => {
       clearInterval(interval.current);
