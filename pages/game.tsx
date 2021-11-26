@@ -1,6 +1,17 @@
 import { ArrowForwardIcon } from "@chakra-ui/icons";
-import { Button, Center, Container, Heading, List, ListItem, useBoolean } from "@chakra-ui/react";
+import Head from "next/head";
+import {
+  Button,
+  Center,
+  Container,
+  Heading,
+  List,
+  ListItem,
+  Text,
+  useBoolean,
+} from "@chakra-ui/react";
 import { GetServerSideProps, InferGetServerSidePropsType } from "next";
+import { useSession } from "next-auth/react";
 import { useEffect, useRef, useState } from "react";
 
 import { ANSWER_TYPE, QUESTION_TYPE } from "../types";
@@ -14,6 +25,8 @@ function GamePage({
   const [currentQuestion, setCurrentQuestion] = useState<QUESTION_TYPE>(questions[0]);
   const [currentIndex, setCurrentIndex] = useState<number>(0);
   const interval = useRef<any>();
+  const { status } = useSession();
+  const [answersCounter, setAnswersCounter] = useState<number>(0);
 
   useEffect(() => {
     setQuestionsColorScheme(
@@ -43,6 +56,10 @@ function GamePage({
     }
   }, [timer]);
 
+  if (status !== "authenticated") {
+    return <Text textAlign="center">Log in in order to play the game</Text>;
+  }
+
   const goToNextQuestion = () => {
     if (currentIndex + 1 >= questions.length) {
       return;
@@ -62,6 +79,7 @@ function GamePage({
     setRoundEnded.on();
     if (answer === currentQuestion.correct) {
       setQuestionsColorScheme({ ...questionsColorScheme, [answer]: "green" });
+      setAnswersCounter((prev) => prev + 1);
     } else {
       setQuestionsColorScheme({
         ...questionsColorScheme,
@@ -72,41 +90,50 @@ function GamePage({
   };
 
   return (
-    <Container maxW="container.xl">
-      <Heading mb={10} mt={40} textAlign="center">
-        {timer}
-      </Heading>
-      <Heading mb={5} textAlign="center">
-        {currentQuestion.question}
-      </Heading>
-      <List maxW={["100%", "25%"]} mx="auto" spacing={3}>
-        {currentQuestion.answers.map((answer: ANSWER_TYPE) => (
-          <ListItem key={answer.id}>
+    <>
+      <Head>
+        <title>Play trivia Nerd 🤓</title>
+      </Head>
+
+      <Container maxW="container.xl">
+        <Heading mb={10} mt={30} textAlign="center">
+          {timer}
+        </Heading>
+        <Heading mb={5} textAlign="center">
+          {currentQuestion.question}
+        </Heading>
+        <List maxW={["100%", "25%"]} mx="auto" spacing={3}>
+          {currentQuestion.answers.map((answer: ANSWER_TYPE) => (
+            <ListItem key={answer.id}>
+              <Button
+                _focus={{ boxShadow: "none" }}
+                colorScheme={!questionsColorScheme ? "gray" : questionsColorScheme[answer.id]}
+                cursor={roundEnded ? "default" : "pointer"}
+                w="100%"
+                onClick={() => checkAnswer(answer.id)}
+              >
+                {answer.answer}
+              </Button>
+            </ListItem>
+          ))}
+        </List>
+        <Center minH={20}>
+          {roundEnded && (
             <Button
-              _focus={{ boxShadow: "none" }}
-              colorScheme={!questionsColorScheme ? "gray" : questionsColorScheme[answer.id]}
-              cursor={roundEnded ? "default" : "pointer"}
-              w="100%"
-              onClick={() => checkAnswer(answer.id)}
+              colorScheme="blue"
+              mt={8}
+              rightIcon={<ArrowForwardIcon />}
+              onClick={goToNextQuestion}
             >
-              {answer.answer}
+              Next Question
             </Button>
-          </ListItem>
-        ))}
-      </List>
-      {roundEnded && (
-        <Center>
-          <Button
-            colorScheme="blue"
-            mt={8}
-            rightIcon={<ArrowForwardIcon />}
-            onClick={goToNextQuestion}
-          >
-            Next Question
-          </Button>
+          )}
         </Center>
-      )}
-    </Container>
+        <Center mt={5}>
+          <Text>{answersCounter} / 10</Text>
+        </Center>
+      </Container>
+    </>
   );
 }
 
