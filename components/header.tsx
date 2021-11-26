@@ -16,11 +16,11 @@ function Header(props: Props): JSX.Element {
             signIn(undefined, { callbackUrl: `${process.env.NEXT_PUBLIC_HOST_URL}/game` })
           }
         >
-          Login
+          Sign In
         </Button>
       ) : (
         <Button m="4" onClick={() => signOut()}>
-          Logout
+          Sign Out
         </Button>
       )}
     </Box>
