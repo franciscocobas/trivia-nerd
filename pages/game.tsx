@@ -102,14 +102,17 @@ function GamePage({
         <Heading mb={5} textAlign="center">
           {currentQuestion.question}
         </Heading>
-        <List maxW={["100%", "25%"]} mx="auto" spacing={3}>
+        <List maxW={["100%", "30%"]} mx="auto" spacing={3}>
           {currentQuestion.answers.map((answer: ANSWER_TYPE) => (
             <ListItem key={answer.id}>
               <Button
                 _focus={{ boxShadow: "none" }}
                 colorScheme={!questionsColorScheme ? "gray" : questionsColorScheme[answer.id]}
                 cursor={roundEnded ? "default" : "pointer"}
+                h="auto"
+                py="3"
                 w="100%"
+                whiteSpace="normal"
                 onClick={() => checkAnswer(answer.id)}
               >
                 {answer.answer}
